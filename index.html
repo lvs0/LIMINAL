@@ -2,26 +2,32 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>LIMINAL — Récit psychologique interactif</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23000' width='192' height='192'/%3E%3Ctext x='96' y='110' font-family='Courier New' font-size='72' fill='%23fff' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+<title>LIMINAL</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow:hidden;background:#000;height:100%;font-family:'Courier New',monospace;color:#fff;touch-action:none}
-#game-canvas{width:100vw;height:100vh;display:block}
-#ui-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
-#narrative{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);max-width:90%;background:rgba(0,0,0,.78);padding:18px 24px;border:1px solid #333;font-size:15px;line-height:1.7;text-shadow:0 0 12px rgba(255,255,255,.4);opacity:0;transition:opacity 1.2s;pointer-events:auto;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none}
+html,body{overflow:hidden;background:#000;height:100%;font-family:'Courier New',monospace;color:#fff}
+#game-canvas{width:100vw;height:100vh;display:block;position:fixed;top:0;left:0}
+#ui-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
+#narrative{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);max-width:92%;background:rgba(0,0,0,.82);padding:16px 20px;border:1px solid #333;font-size:14px;line-height:1.6;text-shadow:0 0 10px rgba(255,255,255,.3);opacity:0;transition:opacity 1.2s;pointer-events:auto;text-align:center}
 #narrative.visible{opacity:1}
-#choices{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:10px;align-items:center;opacity:0;transition:opacity .8s;pointer-events:auto}
+#choices{position:absolute;bottom:150px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:10px;align-items:center;opacity:0;transition:opacity .8s;pointer-events:auto}
 #choices.visible{opacity:1}
-.choice-btn{background:rgba(0,0,0,.7);border:1px solid #555;color:#ccc;padding:10px 24px;font-family:inherit;font-size:13px;letter-spacing:1px;cursor:pointer;transition:all .3s;text-transform:uppercase}
-.choice-btn:hover{border-color:#ff6b00;color:#fff;background:rgba(255,107,0,.1)}
-#sanity-meter{position:absolute;top:16px;right:16px;width:160px}
-#sanity-label{position:absolute;top:36px;right:16px;font-size:9px;color:#555;text-transform:uppercase;letter-spacing:2px}
-#sanity-fill{height:4px;background:linear-gradient(90deg,#c00,#cc0,#0c0);width:100%;transition:width .6s}
-#crosshair{position:absolute;top:50%;left:50%;width:6px;height:6px;background:rgba(255,255,255,.2);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.choice-btn{background:rgba(0,0,0,.75);border:1px solid #555;color:#ccc;padding:12px 28px;font-family:inherit;font-size:12px;letter-spacing:1px;cursor:pointer;transition:all .3s;text-transform:uppercase;border-radius:2px}
+.choice-btn:active{border-color:#ff6b00;color:#fff;background:rgba(255,107,0,.15);transform:scale(.98)}
+#sanity-meter{position:absolute;top:12px;right:12px;width:140px}
+#sanity-label{position:absolute;top:32px;right:12px;font-size:8px;color:#555;text-transform:uppercase;letter-spacing:2px}
+#sanity-fill{height:3px;background:linear-gradient(90deg,#c00,#cc0,#0c0);width:100%;transition:width .6s}
+#crosshair{position:absolute;top:50%;left:50%;width:6px;height:6px;background:rgba(255,255,255,.15);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
 #loading{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:1000;transition:opacity 2.5s}
-#loading h1{font-size:11px;letter-spacing:6px;color:#333;animation:pulse 2.5s infinite;margin-bottom:40px}
-#loader-dots{display:flex;gap:10px;margin-top:20px}
+#loading h1{font-size:10px;letter-spacing:5px;color:#444;animation:pulse 3s infinite;margin-bottom:30px}
+#loader-dots{display:flex;gap:10px;margin-top:16px}
 .ld{width:8px;height:8px;border-radius:50%;background:#333;animation:dotPulse 1.2s infinite}
 .ld:nth-child(1){animation-delay:0s}
 .ld:nth-child(2){animation-delay:.15s}
@@ -30,20 +36,32 @@ html,body{overflow:hidden;background:#000;height:100%;font-family:'Courier New',
 @keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
 @keyframes dotPulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 #title-card{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;transition:opacity 3s}
-#title-card h1{font-size:42px;font-weight:100;letter-spacing:18px;color:#fff;text-transform:uppercase;margin-bottom:16px}
-#title-card p{font-size:11px;color:#555;letter-spacing:2px;max-width:380px;text-align:center;line-height:2;margin-bottom:40px}
-#title-card .hint{font-size:9px;color:#333;letter-spacing:1px;margin-top:20px}
-#start-btn{margin-top:30px;padding:14px 44px;background:transparent;border:1px solid #333;color:#555;font-family:inherit;font-size:10px;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:all .6s}
-#start-btn:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.03)}
-#vignette{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(circle at center,transparent 50%,rgba(0,0,0,.6) 100%);opacity:0;transition:opacity 2s}
-#grain{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:6;opacity:.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#title-card h1{font-size:36px;font-weight:100;letter-spacing:14px;color:#fff;text-transform:uppercase;margin-bottom:14px}
+#title-card p{font-size:10px;color:#666;letter-spacing:1.5px;max-width:340px;text-align:center;line-height:2;margin-bottom:30px;padding:0 20px}
+#title-card .hint{font-size:9px;color:#444;letter-spacing:1px;margin-top:16px}
+#start-btn{margin-top:24px;padding:14px 40px;background:transparent;border:1px solid #444;color:#666;font-family:inherit;font-size:9px;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:all .6s;border-radius:2px}
+#start-btn:active{border-color:#fff;color:#fff;background:rgba(255,255,255,.05);transform:scale(.97)}
+#vignette{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(circle at center,transparent 50%,rgba(0,0,0,.6) 100%);opacity:0;transition:opacity 2s}
+#grain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:6;opacity:.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#mobile-controls{position:fixed;bottom:20px;left:20px;width:120px;height:120px;z-index:20;pointer-events:auto;display:none}
+#joystick-base{position:absolute;width:120px;height:120px;border:2px solid rgba(255,255,255,.08);border-radius:50%}
+#joystick-knob{position:absolute;width:40px;height:40px;background:rgba(255,255,255,.1);border-radius:50%;top:40px;left:40px;transition:transform .05s}
+#action-btn{position:fixed;bottom:40px;right:30px;width:56px;height:56px;border:2px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(0,0,0,.4);color:#fff;font-size:10px;letter-spacing:1px;display:flex;align-items:center;justify-content:center;z-index:20;pointer-events:auto;display:none}
+#action-btn:active{background:rgba(255,107,0,.2);border-color:rgba(255,107,0,.4)}
+#look-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,.15);font-size:11px;letter-spacing:2px;pointer-events:none;z-index:15;opacity:0;transition:opacity 2s}
 </style>
 </head>
 <body>
 <div id="loading"><h1>CONSTRUCTION DE LA RÉALITÉ</h1><div id="loader-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
-<div id="title-card"><h1>LIMINAL</h1><p>"Certaines portes ne mènent pas ailleurs.<br>Elles mènent plus profondément en vous."</p><p class="hint">WASD / Joystick pour marcher • Glisser pour regarder<br>E ou Tap pour interagir • Échap pour menu</p><button id="start-btn">Entrer</button></div>
+<div id="title-card"><h1>LIMINAL</h1><p>"Certaines portes ne mènent pas ailleurs.<br>Elles mènent plus profondément en vous."</p><p class="hint">Joystick : marcher • Glisser : regarder<br>Tap : interagir</p><button id="start-btn">Entrer</button></div>
 <canvas id="game-canvas"></canvas>
 <div id="vignette"></div><div id="grain"></div>
+<div id="look-hint">GLISSEZ POUR REGARDER</div>
+<div id="mobile-controls">
+  <div id="joystick-base"></div>
+  <div id="joystick-knob"></div>
+</div>
+<div id="action-btn">E</div>
 <div id="ui-layer"><div id="crosshair"></div>
 <div id="sanity-meter"><div id="sanity-fill"></div></div><div id="sanity-label">Intégrité Mentale</div>
 <div id="narrative"></div><div id="choices"></div></div>
